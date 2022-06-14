@@ -1,0 +1,40 @@
+name: "Test and trigger build Android and iOS"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main 
+      - develop
+      - feature/*
+      - hotfix/*
+
+env:
+  flutter_version: "2.10.5"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: subosito/flutter-action@v1.5.3
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.flutter_version }}
+      - name: Run static analysis
+        run: flutter analyze
+      - name: Run unit tests
+        run: flutter test --coverage
+      # Notify only if test fails. If not, build workflows will be triggered normally
+      - name: Echo action
+        if: ${{ failure() }}
+        env:
+          MESSAGE_ACTIONS: '[{ "@type": "OpenUri", "name": "View Commit", "targets": [{ "os": "default", "uri": "${{ github.event.head_commit.url }}" }] }]'
+        run: echo "$MESSAGE_ACTIONS"
+      - name: Echo again
+        if: ${{ failure() }}
+        run: echo "Latest push to ${{ github.event.ref_name }} failed to pass CI."
+      - name: Very Good Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v1.2.1
+        with:
+          min_coverage: 90

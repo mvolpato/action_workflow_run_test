@@ -1,0 +1,17 @@
+name: Build for 1 platform
+
+on:
+  workflow_run:
+    workflows: [Test and trigger build Android and iOS]
+    types:
+      - completed
+
+jobs:
+  platform_1:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:        
+      - name: Echo workflow number
+        run: |
+          echo $GITHUB_RUN_NUMBER
+          echo ${{ github.event.workflow_run.run_number }}
