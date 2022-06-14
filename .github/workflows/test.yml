@@ -25,6 +25,10 @@ jobs:
         run: flutter analyze
       - name: Run unit tests
         run: flutter test --coverage
+      - name: Very Good Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v1.2.1
+        with:
+          min_coverage: 90
       # Notify only if test fails. If not, build workflows will be triggered normally
       - name: Echo action
         if: ${{ failure() }}
@@ -34,7 +38,3 @@ jobs:
       - name: Echo again
         if: ${{ failure() }}
         run: echo "Latest push to ${{ github.event.ref_name }} failed to pass CI."
-      - name: Very Good Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v1.2.1
-        with:
-          min_coverage: 90
