@@ -24,6 +24,8 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.set-output-build-number.outputs.build_number }}
     steps:
       - uses: actions/checkout@v2.1.0
       # - uses: subosito/flutter-action@v1.5.3
@@ -48,6 +50,11 @@ jobs:
           value: ${{ env.NEW_BUILD_VERSION }}
           repository: ${{ github.repository }}
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      - name: set outputs with build number
+        id: set-output-build-number
+        run: |    
+          # If workflow_dispatch, use inputs (left), if other trigger, use default env (right)
+          echo "::set-output name=build_number::${{ env.NEW_BUILD_VERSION }}"
       # Notify only if test fails. If not, build workflows will be triggered normally
       - name: Echo action
         if: ${{ failure() }}
