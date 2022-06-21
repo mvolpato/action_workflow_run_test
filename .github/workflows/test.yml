@@ -2,6 +2,15 @@ name: "Test and trigger build Android and iOS"
 
 on:
   workflow_dispatch:
+    inputs:
+      build_os:
+        description: Whether an Internal build for iOS should be deployed to AppCenter
+        required: true 
+        type: boolean
+      build_android:
+        description: Whether an Internal build for Android should be deployed to AppCenter
+        required: true 
+        type: boolean 
   push:
     branches:
       - main 
