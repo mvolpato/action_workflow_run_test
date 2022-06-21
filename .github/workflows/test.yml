@@ -70,13 +70,13 @@ jobs:
     steps:
       - name: echo vars
         run: |
-          echo ${{ needs.EnvSetup.outputs.build_number }}
+          echo ${{ needs.test.outputs.build_number }}
           echo ${{ github.ref_name }}
 
   call-workflow-1-in-local-repo:
     needs: [test]
     uses: ./.github/workflows/platform1.yml
     with:
-      build_number: ${{ needs.EnvSetup.outputs.build_number }}
+      build_number: ${{ needs.test.outputs.build_number }}
       branch_name: ${{ github.ref_name }}
     secrets: inherit
