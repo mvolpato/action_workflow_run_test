@@ -26,4 +26,4 @@ jobs:
 
       - name: echo secret from this repo
         run: |
-          echo "${{ secrets.TEST_ACTION_BUILD_VERSION }}"
+          echo "$((${{ secrets.TEST_ACTION_BUILD_VERSION }}+1))"
