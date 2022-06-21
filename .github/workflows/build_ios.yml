@@ -1,0 +1,29 @@
+name: Build iOS reusable workflow
+
+on:
+  workflow_call:
+    inputs:
+      build_number:
+        required: true
+        type: string
+      branch_name:
+        required: true
+        type: string
+
+jobs:
+  platform_1:
+    runs-on: ubuntu-latest
+    steps:        
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.branch_name }}
+      - run: git branch
+      
+      - name: echo vars
+        run: |
+          echo ${{ inputs.build_number }}
+          echo ${{ inputs.branch_name }}
+
+      - name: echo secret from this repo
+        run: |
+          echo "${{ secrets.TEST_ACTION_BUILD_VERSION }}"
