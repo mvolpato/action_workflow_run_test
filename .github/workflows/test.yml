@@ -76,7 +76,7 @@ jobs:
 
   call-build-ios-workflow:
     needs: [test]
-    if: ${{ inputs.build_android }}
+    if: ${{ inputs.build_ios || inputs.build_ios == null }}
     uses: ./.github/workflows/build_ios.yml
     with:
       build_number: ${{ needs.test.outputs.build_number }}
@@ -84,7 +84,7 @@ jobs:
 
   call-build-android-workflow:
     needs: [test]
-    if: ${{ inputs.build_android }}
+    if: ${{ inputs.build_android || inputs.build_android == null }}
     uses: ./.github/workflows/build_android.yml
     with:
       build_number: ${{ needs.test.outputs.build_number }}
