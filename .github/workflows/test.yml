@@ -49,7 +49,7 @@ jobs:
           repository: ${{ github.repository }}
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
       - name: Build platform 1
-        uses: ./.github/workflows/platform1
+        uses: ./.github/workflows/platform1.yml
         with:
           build_number: ${{ env.NEW_BUILD_VERSION }}
       # Notify only if test fails. If not, build workflows will be triggered normally
