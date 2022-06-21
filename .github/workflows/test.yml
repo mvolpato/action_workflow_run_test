@@ -64,6 +64,14 @@ jobs:
       - name: Echo again
         if: ${{ failure() }}
         run: echo "Latest push to ${{ github.ref_name }} failed to pass CI."
+  
+  echo-build-number:
+    needs: [test]
+    steps:
+      - name: echo vars
+        run: |
+          echo ${{ needs.EnvSetup.outputs.build_number }}
+          echo ${{ github.ref_name }}
 
   call-workflow-1-in-local-repo:
     needs: [test]
