@@ -1,15 +1,12 @@
 name: Build for 1 platform
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      BUILD_NUMBER:
-        description: The build number used in app version
+      build_number:
         required: true
-  workflow_run:
-    workflows: [Test and trigger build Android and iOS]
-    types:
-      - completed
+        type: string
+    secrets: inherit
 
 jobs:
   platform_1:
@@ -33,5 +30,5 @@ jobs:
       
       - name: echo vars
         run: |
-          echo $BUILD_NUMBER
+          echo ${{ inputs.build_number }}
           echo ${{ github.event.workflow_run.head_branch || github.ref_name }}

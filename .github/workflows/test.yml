@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       build_os:
-        description: Whether an Internal build for iOS should be deployed to AppCenter
+        description: Deploy iOS internal build
         required: true 
         type: boolean
       build_android:
-        description: Whether an Internal build for Android should be deployed to AppCenter
+        description: Deploy Android internal build
         required: true 
         type: boolean 
   push:
@@ -48,6 +48,10 @@ jobs:
           value: ${{ env.NEW_BUILD_VERSION }}
           repository: ${{ github.repository }}
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
+      - name: Build platform 1
+        uses: ./.github/workflows/platform1
+        with:
+          build_number: ${{ env.NEW_BUILD_VERSION }}
       # Notify only if test fails. If not, build workflows will be triggered normally
       - name: Echo action
         if: ${{ failure() }}
