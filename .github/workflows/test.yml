@@ -70,3 +70,4 @@ jobs:
     uses: ./.github/workflows/platform1.yml
     with:
       build_number: ${{ needs.EnvSetup.outputs.build_number }}
+    secrets: inherit

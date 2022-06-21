@@ -6,8 +6,6 @@ on:
       build_number:
         required: true
         type: string
-    secrets:
-      inherit
 
 jobs:
   platform_1:
