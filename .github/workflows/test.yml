@@ -60,4 +60,4 @@ jobs:
   call-workflow-1-in-local-repo:
     uses: ./.github/workflows/platform1.yml
     with:
-          build_number: ${{ env.NEW_BUILD_VERSION }}
+      build_number: ${{ env.NEW_BUILD_VERSION }}
