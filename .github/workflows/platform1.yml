@@ -6,17 +6,20 @@ on:
       build_number:
         required: true
         type: string
+      branch_name:
+        required: true
+        type: string
 
 jobs:
   platform_1:
     runs-on: ubuntu-latest
     steps:        
       - uses: actions/checkout@v2
-        # with:
-        #   ref: ${{ github.event.workflow_run.head_branch }}
+        with:
+          ref: ${{ inputs.branch_name }}
       - run: git branch
       
       - name: echo vars
         run: |
           echo ${{ inputs.build_number }}
-          echo ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          echo ${{ inputs.branch_name }}
