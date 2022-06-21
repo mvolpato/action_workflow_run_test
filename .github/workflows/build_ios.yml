@@ -11,7 +11,7 @@ on:
         type: string
 
 jobs:
-  platform_1:
+  build-ios:
     runs-on: ubuntu-latest
     steps:        
       - uses: actions/checkout@v2
