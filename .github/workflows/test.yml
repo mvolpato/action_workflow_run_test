@@ -29,6 +29,16 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v1.2.1
         with:
           min_coverage: 90
+      - name: Autoincrement a new build version
+        run: |
+          echo "NEW_BUILD_VERSION=$((${{ secrets.TEST_ACTION_BUILD_VERSION }}+1))" >> $GITHUB_ENV
+      - name: Update build version
+        uses: hmanzur/actions-set-secret@v2.0.0
+        with:
+          name: 'TEST_ACTION_BUILD_VERSION'
+          value: ${{ env.NEW_BUILD_VERSION }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
       # Notify only if test fails. If not, build workflows will be triggered normally
       - name: Echo action
         if: ${{ failure() }}
