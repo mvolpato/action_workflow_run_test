@@ -66,6 +66,7 @@ jobs:
         run: echo "Latest push to ${{ github.ref_name }} failed to pass CI."
   
   echo-build-number:
+    runs-on: ubuntu-latest
     needs: [test]
     steps:
       - name: echo vars
