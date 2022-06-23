@@ -16,11 +16,15 @@ jobs:
     steps:        
       - uses: actions/checkout@v2
       - run: git branch
+
+      - name: Add build number to env
+        run: echo "IOS_BUILD_NUMBER=${{ inputs.build_number }}" >> $GITHUB_ENV
       
       - name: echo vars
         run: |
           echo ${{ inputs.build_number }}
           echo ${{ inputs.flutter_version }}
+          echo $IOS_BUILD_NUMBER
 
       - name: echo secret from this repo
         run: |
