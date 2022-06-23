@@ -1,0 +1,27 @@
+name: Build iOS reusable workflow
+
+on:
+  workflow_call:
+    inputs:
+      build_number:
+        required: true
+        type: string
+      flutter_version:
+        required: true
+        type: string
+
+jobs:
+  build-ios:
+    runs-on: ubuntu-latest
+    steps:        
+      - uses: actions/checkout@v2
+      - run: git branch
+      
+      - name: echo vars
+        run: |
+          echo ${{ inputs.build_number }}
+          echo ${{ inputs.flutter_version }}
+
+      - name: echo secret from this repo
+        run: |
+          echo "$((${{ secrets.TEST_ACTION_BUILD_VERSION }}+1))"

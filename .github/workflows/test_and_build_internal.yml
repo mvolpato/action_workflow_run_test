@@ -1,0 +1,104 @@
+name: "Test and build INTERNAL"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_ios:
+        description: Deploy iOS internal build
+        required: true 
+        type: boolean
+        default: true
+      build_android:
+        description: Deploy Android internal build
+        required: true 
+        type: boolean
+        default: true
+  push:
+    branches:
+      - main 
+      - develop
+      - feature/*
+      - hotfix/*
+
+env:
+  flutter_version: "2.10.5"
+  initial_build_number: 2000
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      build_number: ${{ steps.set-output-build-number.outputs.build_number }}
+      success: ${{ steps.set_job_status_step.outputs.test_successful }}
+      flutter_version: ${{ steps.set-output-flutter-version.outputs.flutter_version }}
+    steps:
+      - uses: actions/checkout@v2.1.0
+      # - uses: subosito/flutter-action@v1.5.3
+      #   with:
+      #     channel: "stable"
+      #     flutter-version: ${{ env.flutter_version }}
+      # - name: Run static analysis
+      #   run: flutter analyze
+      # - name: Run unit tests
+      #   run: flutter test --coverage
+      # - name: Very Good Coverage
+      #   uses: VeryGoodOpenSource/very_good_coverage@v1.2.1
+      #   with:
+      #     min_coverage: 90
+      
+      # Calculate build number 
+      - name:
+        run: echo "BUILD_NUMBER=$(($GITHUB_RUN_NUMBER + ${{ env.initial_build_number }}))" >> $GITHUB_ENV
+      
+      # Set build number as output so that it can be used in the build workflows
+      - name: Set outputs with build number
+        id: set-output-build-number
+        run: |    
+          echo "::set-output name=build_number::$BUILD_NUMBER"
+
+      # Set output for Flutter version to be able to use it in reusable workflow
+      - name: Set outputs with Flutter version
+        id: set-output-flutter-version
+        run: |    
+          echo "::set-output name=flutter_version::${{ env.flutter_version }}"
+
+      - name: Set test_successful output
+        id: set_job_status_step
+        if: ${{ success() }}
+        run: echo "::set-output name=test_successful::true"
+
+      - name: Add a notice with the build number
+        if: ${{ success() }}
+        run: echo "::notice title=Build number::The build number for this version is $(( $BUILD_NUMBER ))"
+
+  call-build-ios-workflow:
+    needs: [analyze-and-test]
+    # Run this workflow if it was specified by the manual trigger or if triggered
+    # by a push event. Manual trigger => 'true', on push -> 'null'
+    if: ${{  github.event.inputs.build_ios != 'false' && needs.analyze-and-test.outputs.success }}
+    uses: ./.github/workflows/build_ios.yml
+    with:
+      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+    secrets: inherit
+
+  call-build-android-workflow:
+    needs: [analyze-and-test]
+    # Run this workflow if it was specified by the manual trigger or if triggered
+    # by a push event. Manual trigger => 'true', on push -> 'null'
+    if: ${{ github.event.inputs.build_android != 'false' && needs.analyze-and-test.outputs.success }}
+    uses: ./.github/workflows/build_android.yml
+    with:
+      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+    secrets: inherit
+
+  notify-on-failure:
+      needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]
+      runs-on: ubuntu-latest
+      if: ${{ failure() }}
+      steps:
+        - name: Send Build Failed Message
+          env:
+            MESSAGE_ACTIONS: '[{ "@type": "OpenUri", "name": "View Commit", "targets": [{ "os": "default", "uri": "${{ github.event.head_commit.url }}" }] }]'
+          run: echo "$MESSAGE_ACTIONS"
