@@ -77,10 +77,10 @@ jobs:
     # by a push event. Manual trigger => 'true', on push -> 'null'
     if: ${{  github.event.inputs.build_ios != 'false' && needs.analyze-and-test.outputs.success }}
     uses: ./.github/workflows/build_ios.yml
-      with:
-        build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-        flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-      secrets: inherit
+    with:
+      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+    secrets: inherit
 
   call-build-android-workflow:
     needs: [analyze-and-test]
@@ -89,10 +89,10 @@ jobs:
     # by a push event. Manual trigger => 'true', on push -> 'null'
     if: ${{ github.event.inputs.build_android != 'false' && needs.analyze-and-test.outputs.success }}
     uses: ./.github/workflows/build_android.yml
-      with:
-        build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-        flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-      secrets: inherit
+    with:
+      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+    secrets: inherit
 
   tag-on-success:
     needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]
