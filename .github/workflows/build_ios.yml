@@ -34,6 +34,9 @@ jobs:
       - name: echo secret from this repo
         run: |
           echo "$((${{ secrets.TEST_ACTION_BUILD_VERSION }}+1))"
+
+      - name: Try to fail
+        run: exit 1
       
       - name: Set build_successful output
         id: set_job_status_step
