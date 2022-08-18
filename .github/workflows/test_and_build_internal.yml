@@ -84,7 +84,6 @@ jobs:
 
   call-build-android-workflow:
     needs: [analyze-and-test]
-    runs-on: ubuntu-latest
     # Run this workflow if it was specified by the manual trigger or if triggered
     # by a push event. Manual trigger => 'true', on push -> 'null'
     if: ${{ github.event.inputs.build_android != 'false' && needs.analyze-and-test.outputs.success }}
