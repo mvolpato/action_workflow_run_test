@@ -73,32 +73,49 @@ jobs:
 
   call-build-ios-workflow:
     needs: [analyze-and-test]
+    outputs:
+      success: ${{ steps.set_job_status_step.outputs.build_successful }}
     # Run this workflow if it was specified by the manual trigger or if triggered
-    # by a push event. Manual trigger => 'true', on push -> 'null'
+    # by a push event. Manual trigger => 'true', on push => 'null'
     if: ${{  github.event.inputs.build_ios != 'false' && needs.analyze-and-test.outputs.success }}
-    uses: ./.github/workflows/build_ios.yml
-    with:
-      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-    secrets: inherit
+    steps:
+      - name: Build iOS version
+        uses: ./.github/workflows/build_ios.yml
+        with:
+        build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+        flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+        secrets: inherit
+      - name: Set build_successful output
+        id: set_job_status_step
+        if: ${{ success() }}
+        run: echo "::set-output name=build_successful::true"
 
   call-build-android-workflow:
     needs: [analyze-and-test]
+    outputs:
+      success: ${{ steps.set_job_status_step.outputs.build_successful }}
     # Run this workflow if it was specified by the manual trigger or if triggered
-    # by a push event. Manual trigger => 'true', on push -> 'null'
+    # by a push event. Manual trigger => 'true', on push => 'null'
     if: ${{ github.event.inputs.build_android != 'false' && needs.analyze-and-test.outputs.success }}
-    uses: ./.github/workflows/build_android.yml
-    with:
-      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-    secrets: inherit
+    steps:
+      - name: Build Android version
+        uses: ./.github/workflows/build_android.yml
+        with:
+          build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+          flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+        secrets: inherit
+      - name: Set build_successful output
+        id: set_job_status_step
+        if: ${{ success() }}
+        run: echo "::set-output name=build_successful::true"
 
-  notify-on-failure:
-      needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]
-      runs-on: ubuntu-latest
-      if: ${{ failure() }}
-      steps:
-        - name: Send Build Failed Message
-          env:
-            MESSAGE_ACTIONS: '[{ "@type": "OpenUri", "name": "View Commit", "targets": [{ "os": "default", "uri": "${{ github.event.head_commit.url }}" }] }]'
-          run: echo "$MESSAGE_ACTIONS"
+  tag-on-success:
+    needs: [call-build-ios-workflow, call-build-android-workflow]
+    runs-on: ubuntu-latest
+    if: ${{ needs.call-build-ios-workflow.outputs.success || needs.call-build-android-workflow.outputs.success }}
+    steps:
+      - name: Tag internal release
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "internal-${{ env.PUBSPEC_VERSION_NUMBER }}-${{ inputs.build_number }}"
