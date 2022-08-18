@@ -85,7 +85,7 @@ jobs:
         with:
           build_number: ${{ needs.analyze-and-test.outputs.build_number }}
           flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-        secrets: inherit
+          secrets: inherit
       - name: Set build_successful output
         id: set_job_status_step
         if: ${{ success() }}
@@ -105,7 +105,7 @@ jobs:
         with:
           build_number: ${{ needs.analyze-and-test.outputs.build_number }}
           flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-        secrets: inherit
+          secrets: inherit
       - name: Set build_successful output
         id: set_job_status_step
         if: ${{ success() }}
