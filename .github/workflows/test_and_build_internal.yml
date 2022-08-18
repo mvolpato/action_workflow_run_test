@@ -73,43 +73,26 @@ jobs:
 
   call-build-ios-workflow:
     needs: [analyze-and-test]
-    runs-on: ubuntu-latest
-    outputs:
-      success: ${{ steps.set_job_status_step.outputs.build_successful }}
     # Run this workflow if it was specified by the manual trigger or if triggered
-    # by a push event. Manual trigger => 'true', on push => 'null'
+    # by a push event. Manual trigger => 'true', on push -> 'null'
     if: ${{  github.event.inputs.build_ios != 'false' && needs.analyze-and-test.outputs.success }}
-    steps:
-      - name: Build iOS version
-        uses: ./.github/workflows/build_ios.yml
-        with:
-          build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-          flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-          secrets: inherit
-      - name: Set build_successful output
-        id: set_job_status_step
-        if: ${{ success() }}
-        run: echo "::set-output name=build_successful::true"
+    uses: ./.github/workflows/build_ios.yml
+    with:
+      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+    secrets: inherit
 
   call-build-android-workflow:
     needs: [analyze-and-test]
     runs-on: ubuntu-latest
-    outputs:
-      success: ${{ steps.set_job_status_step.outputs.build_successful }}
     # Run this workflow if it was specified by the manual trigger or if triggered
-    # by a push event. Manual trigger => 'true', on push => 'null'
+    # by a push event. Manual trigger => 'true', on push -> 'null'
     if: ${{ github.event.inputs.build_android != 'false' && needs.analyze-and-test.outputs.success }}
-    steps:
-      - name: Build Android version
-        uses: ./.github/workflows/build_android.yml
-        with:
-          build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-          flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
-          secrets: inherit
-      - name: Set build_successful output
-        id: set_job_status_step
-        if: ${{ success() }}
-        run: echo "::set-output name=build_successful::true"
+    uses: ./.github/workflows/build_android.yml
+    with:
+      build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+      flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+    secrets: inherit
 
   tag-on-success:
     needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]

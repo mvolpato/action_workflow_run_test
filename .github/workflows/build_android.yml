@@ -9,10 +9,15 @@ on:
       flutter_version:
         required: true
         type: string
+    outputs:
+      success:
+        value: ${{ jobs.build_android.outputs.success }}
 
 jobs:
   build_android:
     runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.set_job_status_step.outputs.build_successful }}
     steps:        
       - uses: actions/checkout@v2
       - run: git branch
@@ -25,3 +30,8 @@ jobs:
       - name: echo secret from this repo
         run: |
           echo "$((${{ secrets.TEST_ACTION_BUILD_VERSION }}+1))"
+
+      - name: Set build_successful output
+        id: set_job_status_step
+        if: ${{ success() }}
+        run: echo "::set-output name=build_successful::true"
