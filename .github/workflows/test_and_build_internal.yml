@@ -73,6 +73,7 @@ jobs:
 
   call-build-ios-workflow:
     needs: [analyze-and-test]
+    runs-on: ubuntu-latest
     outputs:
       success: ${{ steps.set_job_status_step.outputs.build_successful }}
     # Run this workflow if it was specified by the manual trigger or if triggered
@@ -92,6 +93,7 @@ jobs:
 
   call-build-android-workflow:
     needs: [analyze-and-test]
+    runs-on: ubuntu-latest
     outputs:
       success: ${{ steps.set_job_status_step.outputs.build_successful }}
     # Run this workflow if it was specified by the manual trigger or if triggered
