@@ -82,8 +82,8 @@ jobs:
       - name: Build iOS version
         uses: ./.github/workflows/build_ios.yml
         with:
-        build_number: ${{ needs.analyze-and-test.outputs.build_number }}
-        flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
+          build_number: ${{ needs.analyze-and-test.outputs.build_number }}
+          flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
         secrets: inherit
       - name: Set build_successful output
         id: set_job_status_step
