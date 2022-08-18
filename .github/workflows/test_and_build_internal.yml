@@ -110,7 +110,7 @@ jobs:
         run: echo "::set-output name=build_successful::true"
 
   tag-on-success:
-    needs: [call-build-ios-workflow, call-build-android-workflow]
+    needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]
     runs-on: ubuntu-latest
     if: ${{ needs.call-build-ios-workflow.outputs.success || needs.call-build-android-workflow.outputs.success }}
     steps:
