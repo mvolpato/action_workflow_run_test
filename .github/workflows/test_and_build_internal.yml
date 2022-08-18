@@ -31,8 +31,10 @@ jobs:
       build_number: ${{ steps.set-output-build-number.outputs.build_number }}
       success: ${{ steps.set_job_status_step.outputs.test_successful }}
       flutter_version: ${{ steps.set-output-flutter-version.outputs.flutter_version }}
+      pubspec_version_number: ${{ steps.set-output-pubspec-version.outputs.pubspec_version_numer }}
     steps:
       - uses: actions/checkout@v2.1.0
+
       # - uses: subosito/flutter-action@v1.5.3
       #   with:
       #     channel: "stable"
@@ -71,6 +73,12 @@ jobs:
         if: ${{ success() }}
         run: echo "::notice title=Build number::The build number for this version is $(( $BUILD_NUMBER ))"
 
+      - name: Set pubspec version number output
+        id: set-output-pubspec-version
+        run: |
+          PUBSPEC_VERSION_NUMBER_LOCAL=`sed -n "s/.*version: \([^+]*\)\+.*/\1/p" pubspec.yaml`
+          echo "::set-output name=pubspec_version_numer::$PUBSPEC_VERSION_NUMBER_LOCAL"
+
   call-build-ios-workflow:
     needs: [analyze-and-test]
     # Run this workflow if it was specified by the manual trigger or if triggered
@@ -93,12 +101,13 @@ jobs:
       flutter_version: ${{ needs.analyze-and-test.outputs.flutter_version }}
     secrets: inherit
 
-  notify-on-failure:
-      needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]
-      runs-on: ubuntu-latest
-      if: ${{ failure() }}
-      steps:
-        - name: Send Build Failed Message
-          env:
-            MESSAGE_ACTIONS: '[{ "@type": "OpenUri", "name": "View Commit", "targets": [{ "os": "default", "uri": "${{ github.event.head_commit.url }}" }] }]'
-          run: echo "$MESSAGE_ACTIONS"
+  tag-on-success:
+    needs: [analyze-and-test, call-build-ios-workflow, call-build-android-workflow]
+    runs-on: ubuntu-latest
+    if: ${{ always()&&(needs.call-build-ios-workflow.outputs.success || needs.call-build-android-workflow.outputs.success) }}
+    steps:
+      - name: Tag internal release
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "internal-${{ needs.analyze-and-test.outputs.pubspec_version_number }}-${{ needs.analyze-and-test.outputs.build_number }}"
